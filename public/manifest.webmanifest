@@ -1,0 +1,24 @@
+{
+  "name": "StockFlow — Inventory Management",
+  "short_name": "StockFlow",
+  "description": "Track inventory, stock alerts, and warehouse operations with role-based admin and user dashboards.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/stockflow-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
