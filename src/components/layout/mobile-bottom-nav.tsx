@@ -26,8 +26,11 @@ export function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface-elevated/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden">
-      <div className="flex items-center justify-around py-2">
+    <nav
+      data-mobile-nav
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface-elevated/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-md transition-opacity duration-200 lg:hidden"
+    >
+      <div className="flex items-center justify-around py-2.5">
         {mobileNavItems.map((item) => {
           const isActive =
             item.href === "/"
@@ -38,23 +41,23 @@ export function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all ${
+              className={`flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-xl px-1 py-1.5 transition-all ${
                 isActive
                   ? "text-accent-primary"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >
               <span
-                className={`flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
+                className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
                   isActive ? "bg-accent-primary-light" : ""
                 }`}
               >
                 <item.icon
-                  className="h-[18px] w-[18px]"
+                  className="h-5 w-5"
                   strokeWidth={isActive ? 2.5 : 2}
                 />
               </span>
-              <span className="truncate text-[10px] font-semibold">
+              <span className="truncate text-xs font-semibold leading-none sm:text-sm">
                 {item.label}
               </span>
             </Link>
