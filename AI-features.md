@@ -113,8 +113,12 @@ Export PDF or email reports with plain-language summaries, charts, and recommend
 
 ## Branch Plan
 
-| Branch | Feature |
-|--------|---------|
-| `feat/ai-feature-chat-assistant` | AI chat sidebar in dashboard |
-| `feat/ai-feature-smart-reorder` | Smart reorder suggestions on dashboard |
-| `feat/ai-feature-natural-language-search` | NL search on inventory page |
+| Branch | Feature | Status |
+|--------|---------|--------|
+| `feat/ai-feature-chat-assistant` | AI chat sidebar in dashboard | Done |
+| `feat/ai-feature-smart-reorder` | Smart reorder suggestions on dashboard | Done |
+| `feat/ai-feature-natural-language-search` | NL search on inventory page | Done |
+
+### Setup
+
+Add `AI_GATEWAY_API_KEY` to `.env.local` (see `.env.example`) for full AI responses. Local heuristic fallbacks work without a key.
