@@ -7,6 +7,7 @@ import { isAdmin } from "@/lib/auth";
 import { useSettings } from "@/context/settings-provider";
 import { getWorkspaceTitle } from "@/lib/notifications";
 import { NotificationsPanel } from "./notifications-panel";
+import { AIChatPanel } from "@/components/ai/ai-chat-panel";
 
 export function TopBar() {
   const { user } = useAuth();
@@ -33,6 +34,7 @@ export function TopBar() {
       </div>
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <AIChatPanel />
         <NotificationsPanel />
 
         <Link
