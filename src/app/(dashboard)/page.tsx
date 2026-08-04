@@ -16,6 +16,10 @@ import {
   Boxes,
 } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
+import { ReorderSuggestionsPanel } from "@/components/ai/reorder-suggestions-panel";
+import { getReorderSuggestions } from "@/lib/ai/reorder-suggestions";
+import { inventoryUsers } from "@/lib/mock-data";
 
 const activityColors = {
   add: "bg-accent-success-light text-accent-success",
@@ -38,6 +42,13 @@ export default function DashboardPage() {
   const items = getVisibleItems(admin, userId);
   const stats = getStats(admin, userId);
   const categoryData = getCategoryData(admin, userId);
+
+  const reorderSuggestions = useMemo(() => {
+    const ownerNames = admin
+      ? new Map(inventoryUsers.map((u) => [u.id, u.name]))
+      : undefined;
+    return getReorderSuggestions(items, activity, ownerNames);
+  }, [items, activity, admin]);
 
   return (
     <div className="page-shell">
@@ -133,7 +144,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 space-y-4">
+          <ReorderSuggestionsPanel
+            suggestions={reorderSuggestions}
+            admin={admin}
+          />
           <div className="glass-card glass-card-glow rounded-2xl p-4 transition-shadow hover:shadow-md sm:p-5">
             <h3 className="mb-1 text-sm font-bold text-text-primary">
               By Category
