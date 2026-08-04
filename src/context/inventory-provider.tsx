@@ -58,11 +58,27 @@ function loadItems(): InventoryItem[] {
   }
 }
 
+function normalizeActivity(entries: ActivityEntry[]): ActivityEntry[] {
+  const seen = new Set<string>();
+
+  return entries.map((entry) => {
+    if (!seen.has(entry.id)) {
+      seen.add(entry.id);
+      return entry;
+    }
+
+    const uniqueId = `${entry.id}-${Math.random().toString(36).slice(2, 8)}`;
+    seen.add(uniqueId);
+    return { ...entry, id: uniqueId };
+  });
+}
+
 function loadActivity(): ActivityEntry[] {
   if (typeof window === "undefined") return seedActivity;
   try {
     const raw = localStorage.getItem(ACTIVITY_KEY);
-    return raw ? (JSON.parse(raw) as ActivityEntry[]) : seedActivity;
+    const parsed = raw ? (JSON.parse(raw) as ActivityEntry[]) : seedActivity;
+    return normalizeActivity(parsed);
   } catch {
     return seedActivity;
   }
@@ -77,8 +93,13 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    setItems(loadItems());
-    setActivity(loadActivity());
+    const loadedItems = loadItems();
+    const loadedActivity = loadActivity();
+    setItems(loadedItems);
+    setActivity(loadedActivity);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(ACTIVITY_KEY, JSON.stringify(loadedActivity));
+    }
     setIsLoading(false);
   }, []);
 
@@ -91,11 +112,14 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     (entry: Omit<ActivityEntry, "id" | "timestamp">) => {
       const newEntry: ActivityEntry = {
         ...entry,
-        id: `a-${Date.now()}`,
+        id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         timestamp: formatRelativeTime(new Date()),
       };
       setActivity((prev) => {
-        const next = [newEntry, ...prev].slice(0, 20);
+        const next = normalizeActivity([
+          newEntry,
+          ...prev.filter((item) => item.id !== newEntry.id),
+        ]).slice(0, 20);
         localStorage.setItem(ACTIVITY_KEY, JSON.stringify(next));
         return next;
       });

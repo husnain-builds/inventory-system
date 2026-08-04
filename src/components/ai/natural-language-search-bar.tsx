@@ -1,10 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Search, Sparkles, X } from "lucide-react";
-import type { InventoryItem } from "@/lib/mock-data";
 import {
-  applyNLSearchFilters,
   parseNaturalLanguageQuery,
   type NLSearchResult,
 } from "@/lib/ai/natural-language-search";
@@ -18,31 +16,24 @@ const EXAMPLES = [
 ];
 
 interface NaturalLanguageSearchBarProps {
-  items: InventoryItem[];
   admin?: boolean;
-  onResults: (filtered: InventoryItem[], meta: NLSearchResult | null) => void;
+  onSearchMeta: (meta: NLSearchResult | null) => void;
 }
 
 export function NaturalLanguageSearchBar({
-  items,
   admin = false,
-  onResults,
+  onSearchMeta,
 }: NaturalLanguageSearchBarProps) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [meta, setMeta] = useState<NLSearchResult | null>(null);
-
-  const ownerNames = useMemo(
-    () => new Map(inventoryUsers.map((u) => [u.id, u.name])),
-    []
-  );
 
   const runSearch = useCallback(
     async (rawQuery: string) => {
       const trimmed = rawQuery.trim();
       if (!trimmed) {
         setMeta(null);
-        onResults(items, null);
+        onSearchMeta(null);
         return;
       }
 
@@ -60,33 +51,23 @@ export function NaturalLanguageSearchBar({
         });
 
         const result = (await res.json()) as NLSearchResult;
-        const filtered = applyNLSearchFilters(
-          items,
-          result.filters,
-          admin ? ownerNames : undefined
-        );
         setMeta(result);
-        onResults(filtered, result);
+        onSearchMeta(result);
       } catch {
         const fallback = parseNaturalLanguageQuery(trimmed);
-        const filtered = applyNLSearchFilters(
-          items,
-          fallback.filters,
-          admin ? ownerNames : undefined
-        );
         setMeta(fallback);
-        onResults(filtered, fallback);
+        onSearchMeta(fallback);
       } finally {
         setLoading(false);
       }
     },
-    [items, admin, ownerNames, onResults]
+    [admin, onSearchMeta]
   );
 
   function clearSearch() {
     setQuery("");
     setMeta(null);
-    onResults(items, null);
+    onSearchMeta(null);
   }
 
   return (

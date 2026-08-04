@@ -109,8 +109,9 @@ export function AIChatPanel() {
                   <button
                     key={s}
                     type="button"
-                    onClick={() => handleSend(s)}
-                    className="rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:border-accent-primary/30 hover:text-accent-primary"
+                    onClick={() => void handleSend(s)}
+                    disabled={isBusy}
+                    className="rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:border-accent-primary/30 hover:text-accent-primary disabled:opacity-50"
                   >
                     {s}
                   </button>
@@ -163,6 +164,26 @@ export function AIChatPanel() {
             void handleSend(input);
           }}
         >
+          {messages.length > 0 && (
+            <div className="mb-2.5">
+              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
+                Suggested
+              </p>
+              <div className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {suggestions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => void handleSend(s)}
+                    disabled={isBusy}
+                    className="shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:border-accent-primary/30 hover:bg-accent-primary-light hover:text-accent-primary disabled:opacity-50"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex items-end gap-2">
             <textarea
               value={input}
