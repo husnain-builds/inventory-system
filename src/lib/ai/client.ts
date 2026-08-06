@@ -16,12 +16,18 @@ export interface CompletionResult {
   model: string;
 }
 
+function readApiKey(envName: string): string | undefined {
+  const raw = process.env[envName]?.trim();
+  if (!raw) return undefined;
+  return raw.replace(/^['"]|['"]$/g, "").trim() || undefined;
+}
+
 async function callProvider(
   provider: AIProviderConfig,
   messages: ChatMessage[],
   options?: { model?: string; maxTokens?: number }
 ): Promise<CompletionResult> {
-  const apiKey = process.env[provider.apiKeyEnv]?.trim();
+  const apiKey = readApiKey(provider.apiKeyEnv);
   if (!apiKey) {
     throw new Error(`${provider.label} API key is missing.`);
   }

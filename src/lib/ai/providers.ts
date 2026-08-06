@@ -44,11 +44,18 @@ export const AI_PROVIDERS: AIProviderConfig[] = [
   },
 ];
 
+function readEnv(name: string): string | undefined {
+  const raw = process.env[name]?.trim();
+  if (!raw) return undefined;
+  // Strip accidental quotes from dashboard / .env paste: "gsk_..."
+  return raw.replace(/^['"]|['"]$/g, "").trim() || undefined;
+}
+
 export function getConfiguredProviders(): AIProviderConfig[] {
-  const forced = process.env.AI_PROVIDER?.trim() as AIProviderId | undefined;
+  const forced = readEnv("AI_PROVIDER") as AIProviderId | undefined;
 
   const available = AI_PROVIDERS.filter((provider) =>
-    Boolean(process.env[provider.apiKeyEnv]?.trim())
+    Boolean(readEnv(provider.apiKeyEnv))
   );
 
   if (forced) {
