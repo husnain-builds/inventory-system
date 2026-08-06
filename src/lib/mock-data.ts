@@ -22,6 +22,8 @@ export interface InventoryItem {
   ownerId: string;
   lastUpdated: string;
   status: StockStatus;
+  imageUrl?: string;
+  imagePending?: boolean;
 }
 
 export interface ActivityEntry {

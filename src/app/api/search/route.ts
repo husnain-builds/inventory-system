@@ -1,5 +1,5 @@
-import { generateText, Output } from "ai";
-import { z } from "zod";
+import { completePrompt } from "@/lib/ai/client";
+import { hasAIProvider } from "@/lib/ai/providers";
 import {
   parseNaturalLanguageQuery,
   type NLSearchFilters,
@@ -9,21 +9,45 @@ import { CATEGORIES } from "@/lib/inventory-utils";
 
 export const maxDuration = 15;
 
-const filterSchema = z.object({
-  searchTerms: z.array(z.string()),
-  categories: z.array(z.string()),
-  statuses: z.array(z.enum(["in-stock", "low-stock", "out-of-stock"])),
-  locations: z.array(z.string()),
-  ownerNames: z.array(z.string()),
-  explanation: z.string(),
-});
+function parseSearchFilters(raw: string): {
+  filters: NLSearchFilters;
+  explanation: string;
+} | null {
+  try {
+    const jsonText = raw.replace(/^```json\s*|\s*```$/g, "").trim();
+    const parsed = JSON.parse(jsonText) as Partial<NLSearchFilters> & {
+      explanation?: string;
+    };
 
-function hasAiGateway(): boolean {
-  return Boolean(
-    process.env.AI_GATEWAY_API_KEY ||
-      process.env.VERCEL_OIDC_TOKEN ||
-      process.env.AI_SDK_DEFAULT_PROVIDER
-  );
+    const statuses = (parsed.statuses ?? []).filter(
+      (status): status is NLSearchFilters["statuses"][number] =>
+        status === "in-stock" || status === "low-stock" || status === "out-of-stock"
+    );
+
+    return {
+      filters: {
+        searchTerms: Array.isArray(parsed.searchTerms)
+          ? parsed.searchTerms.filter((term): term is string => typeof term === "string")
+          : [],
+        categories: Array.isArray(parsed.categories)
+          ? parsed.categories.filter((category): category is string => typeof category === "string")
+          : [],
+        statuses,
+        locations: Array.isArray(parsed.locations)
+          ? parsed.locations.filter((location): location is string => typeof location === "string")
+          : [],
+        ownerNames: Array.isArray(parsed.ownerNames)
+          ? parsed.ownerNames.filter((owner): owner is string => typeof owner === "string")
+          : [],
+      },
+      explanation:
+        typeof parsed.explanation === "string"
+          ? parsed.explanation
+          : "Parsed your search with AI.",
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: Request) {
@@ -46,37 +70,43 @@ export async function POST(req: Request) {
     } satisfies NLSearchResult);
   }
 
-  if (!hasAiGateway()) {
+  if (!hasAIProvider()) {
     return Response.json(parseNaturalLanguageQuery(query));
   }
 
   try {
-    const { output } = await generateText({
-      model: "google/gemini-2.5-flash",
-      output: Output.object({ schema: filterSchema }),
-      prompt: `Convert this natural language inventory search into structured filters.
+    const result = await completePrompt(
+      `Convert this natural language inventory search into JSON filters.
 
 Query: "${query}"
 
 Valid categories: ${CATEGORIES.join(", ")}
 Known owners: ${(owners ?? []).join(", ") || "none"}
 
-Return JSON filters. Use empty arrays when not specified.
-Map informal phrases: "needs attention" → low-stock + out-of-stock, "electronics" → Electronics category.`,
-      maxOutputTokens: 512,
-    });
+Return ONLY JSON:
+{
+  "searchTerms": string[],
+  "categories": string[],
+  "statuses": ("in-stock" | "low-stock" | "out-of-stock")[],
+  "locations": string[],
+  "ownerNames": string[],
+  "explanation": string
+}`,
+      {
+        system:
+          "You convert inventory search queries into JSON filters. Respond with valid JSON only.",
+        maxTokens: 512,
+      }
+    );
 
-    const filters: NLSearchFilters = {
-      searchTerms: output.searchTerms,
-      categories: output.categories,
-      statuses: output.statuses,
-      locations: output.locations,
-      ownerNames: output.ownerNames,
-    };
+    const parsed = parseSearchFilters(result.reply);
+    if (!parsed) {
+      return Response.json(parseNaturalLanguageQuery(query));
+    }
 
     return Response.json({
-      filters,
-      explanation: output.explanation,
+      filters: parsed.filters,
+      explanation: parsed.explanation,
       usedAi: true,
     } satisfies NLSearchResult);
   } catch {
