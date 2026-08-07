@@ -42,19 +42,30 @@ export function AIChatPanel() {
   const lastSpokenIdRef = useRef<string | null>(null);
 
   const isBusy = status === "submitted";
+  const busyRef = useRef(false);
+
+  useEffect(() => {
+    busyRef.current = isBusy;
+  }, [isBusy]);
 
   const {
     isSupported: voiceSupported,
     isListening,
+    isVoiceMode,
     isSpeaking,
+    isWaitingForPause,
+    pauseMs,
     interimTranscript,
     voiceError,
     autoSpeak,
     setAutoSpeak,
     toggleListening,
+    stopListening,
+    resumeListeningAfterReply,
     speak,
     stopSpeaking,
   } = useVoiceChat({
+    pauseMs: 1600,
     onFinalTranscript: (text) => {
       setInput(text);
       void handleSend(text);
@@ -72,33 +83,50 @@ export function AIChatPanel() {
   }, [messages, status, interimTranscript]);
 
   useEffect(() => {
-    if (!autoSpeak || !open) return;
+    if (!open) return;
     const last = messages.at(-1);
     if (!last || last.role !== "assistant" || status !== "ready") return;
     if (last.id === lastSpokenIdRef.current) return;
 
     lastSpokenIdRef.current = last.id;
-    speak(last.content);
-  }, [messages, status, autoSpeak, open, speak]);
+    if (autoSpeak) {
+      speak(last.content);
+    } else if (isVoiceMode) {
+      // No TTS — resume mic after the agent finishes thinking
+      window.setTimeout(() => resumeListeningAfterReply(), 300);
+    }
+  }, [
+    messages,
+    status,
+    autoSpeak,
+    open,
+    speak,
+    isVoiceMode,
+    resumeListeningAfterReply,
+  ]);
 
   useEffect(() => {
     if (!open) {
       stopSpeaking();
+      stopListening();
       lastSpokenIdRef.current = null;
     }
-  }, [open, stopSpeaking]);
+  }, [open, stopSpeaking, stopListening]);
 
   const suggestions = admin ? SUGGESTIONS.admin : SUGGESTIONS.user;
 
   async function handleSend(text: string) {
     const trimmed = text.trim();
-    if (!trimmed || isBusy) return;
+    if (!trimmed || busyRef.current) return;
     setInput("");
     stopSpeaking();
     await sendInventoryMessage(trimmed);
   }
 
-  const inputValue = isListening ? interimTranscript || input : input;
+  const inputValue =
+    isListening || isWaitingForPause
+      ? interimTranscript || input
+      : input;
 
   const panel = (
     <div className="fixed inset-0 z-[250] flex items-end justify-end p-0 sm:p-4">
@@ -123,7 +151,15 @@ export function AIChatPanel() {
               <p className="text-[10px] text-text-muted">
                 {provider ? `${provider} · ` : ""}
                 {admin ? "Admin" : "User"} mode
-                {isListening ? " · Listening…" : isSpeaking ? " · Speaking…" : ""}
+                {isListening
+                  ? " · Listening…"
+                  : isWaitingForPause
+                    ? " · Pause detected…"
+                    : isSpeaking
+                      ? " · Speaking…"
+                      : isVoiceMode
+                        ? " · Voice mode"
+                        : ""}
               </p>
             </div>
           </div>
@@ -173,7 +209,7 @@ export function AIChatPanel() {
               </p>
               {voiceSupported && (
                 <p className="mt-1 text-[11px] text-accent-primary">
-                  Voice flow: tap mic → speak → hear the reply
+                  Voice flow: tap mic → speak → pause ~{Math.round(pauseMs / 1000)}s → reply
                 </p>
               )}
               <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -182,7 +218,7 @@ export function AIChatPanel() {
                     key={s}
                     type="button"
                     onClick={() => void handleSend(s)}
-                    disabled={isBusy || isListening}
+                    disabled={isBusy || isVoiceMode}
                     className="rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:border-accent-primary/30 hover:text-accent-primary disabled:opacity-50"
                   >
                     {s}
@@ -255,7 +291,7 @@ export function AIChatPanel() {
                     key={s}
                     type="button"
                     onClick={() => void handleSend(s)}
-                    disabled={isBusy || isListening}
+                    disabled={isBusy || isVoiceMode}
                     className="shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-text-secondary transition-colors hover:border-accent-primary/30 hover:bg-accent-primary-light hover:text-accent-primary disabled:opacity-50"
                   >
                     {s}
@@ -265,14 +301,20 @@ export function AIChatPanel() {
             </div>
           )}
 
-          {isListening && (
+          {isVoiceMode && (
             <div className="mb-2 flex items-center gap-2 rounded-xl border border-accent-primary/30 bg-accent-primary-light/50 px-3 py-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-primary opacity-60" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-primary" />
               </span>
               <p className="text-xs font-medium text-accent-primary">
-                Listening… speak your request
+                {isWaitingForPause
+                  ? `Pause detected — sending in ~${(pauseMs / 1000).toFixed(1)}s if you stay quiet`
+                  : isSpeaking
+                    ? "Speaking reply… mic paused"
+                    : isBusy
+                      ? "Thinking… mic paused"
+                      : "Listening… keep talking; pause to send"}
               </p>
             </div>
           )}
@@ -282,15 +324,15 @@ export function AIChatPanel() {
               <button
                 type="button"
                 onClick={toggleListening}
-                disabled={isBusy}
+                disabled={isBusy && !isVoiceMode}
                 className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40 ${
-                  isListening
+                  isVoiceMode
                     ? "border-accent-danger/40 bg-accent-danger-light text-accent-danger"
                     : "border-border bg-surface text-text-secondary hover:border-accent-primary/30 hover:bg-accent-primary-light hover:text-accent-primary"
                 }`}
-                aria-label={isListening ? "Stop listening" : "Start voice input"}
+                aria-label={isVoiceMode ? "Stop voice mode" : "Start voice input"}
               >
-                {isListening ? (
+                {isVoiceMode ? (
                   <MicOff className="h-4 w-4" />
                 ) : (
                   <Mic className="h-4 w-4" />
@@ -312,13 +354,13 @@ export function AIChatPanel() {
                   ? "Type or tap the mic to speak…"
                   : "Ask about stock, alerts, activity…"
               }
-              disabled={isBusy || isListening}
-              readOnly={isListening}
+              disabled={isBusy || isVoiceMode}
+              readOnly={isVoiceMode}
               className="max-h-24 min-h-[42px] flex-1 resize-none rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text-primary outline-none transition-colors focus:border-accent-primary/50 focus:ring-2 focus:ring-accent-primary/15 disabled:opacity-60"
             />
             <button
               type="submit"
-              disabled={isBusy || isListening || !inputValue.trim()}
+              disabled={isBusy || isVoiceMode || !inputValue.trim()}
               className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-accent-primary text-white transition-opacity hover:opacity-90 disabled:opacity-40"
               aria-label="Send message"
             >
