@@ -56,21 +56,30 @@ export function buildStockAlertNotifications(
 export function buildActivityNotifications(
   activity: ActivityEntry[]
 ): AppNotification[] {
-  return activity.slice(0, 8).map((entry) => ({
-    id: `activity-${entry.id}`,
-    type: "activity" as const,
-    title:
-      entry.type === "add"
-        ? "Item Added"
-        : entry.type === "remove"
-          ? "Item Removed"
-          : entry.type === "alert"
-            ? "Stock Alert"
-            : "Item Updated",
-    message: entry.message,
-    timestamp: entry.timestamp,
-    href: "/inventory",
-  }));
+  const seen = new Set<string>();
+
+  return activity
+    .filter((entry) => {
+      if (seen.has(entry.id)) return false;
+      seen.add(entry.id);
+      return true;
+    })
+    .slice(0, 8)
+    .map((entry) => ({
+      id: `activity-${entry.id}`,
+      type: "activity" as const,
+      title:
+        entry.type === "add"
+          ? "Item Added"
+          : entry.type === "remove"
+            ? "Item Removed"
+            : entry.type === "alert"
+              ? "Stock Alert"
+              : "Item Updated",
+      message: entry.message,
+      timestamp: entry.timestamp,
+      href: "/inventory",
+    }));
 }
 
 export function getWorkspaceTitle(

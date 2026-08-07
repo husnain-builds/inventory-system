@@ -37,9 +37,13 @@ interface InventoryContextValue {
   openCreateModal: () => void;
   openEditModal: (item: InventoryItem) => void;
   closeModal: () => void;
-  addItem: (input: ItemFormInput) => { error?: string };
+  addItem: (input: ItemFormInput) => { error?: string; itemId?: string };
   updateItem: (id: string, input: ItemFormInput) => { error?: string };
   deleteItem: (id: string) => void;
+  regenerateProductImage: (
+    itemId: string,
+    options?: { imageHint?: string }
+  ) => Promise<{ error?: string }>;
   getVisibleItems: (admin: boolean, userId: string) => InventoryItem[];
   getCategoryData: (admin: boolean, userId: string) => { label: string; value: number }[];
   getStats: (admin: boolean, userId: string) => ReturnType<typeof getAdminStats> | ReturnType<typeof getUserStats>;
@@ -58,11 +62,27 @@ function loadItems(): InventoryItem[] {
   }
 }
 
+function normalizeActivity(entries: ActivityEntry[]): ActivityEntry[] {
+  const seen = new Set<string>();
+
+  return entries.map((entry) => {
+    if (!seen.has(entry.id)) {
+      seen.add(entry.id);
+      return entry;
+    }
+
+    const uniqueId = `${entry.id}-${Math.random().toString(36).slice(2, 8)}`;
+    seen.add(uniqueId);
+    return { ...entry, id: uniqueId };
+  });
+}
+
 function loadActivity(): ActivityEntry[] {
   if (typeof window === "undefined") return seedActivity;
   try {
     const raw = localStorage.getItem(ACTIVITY_KEY);
-    return raw ? (JSON.parse(raw) as ActivityEntry[]) : seedActivity;
+    const parsed = raw ? (JSON.parse(raw) as ActivityEntry[]) : seedActivity;
+    return normalizeActivity(parsed);
   } catch {
     return seedActivity;
   }
@@ -77,8 +97,13 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    setItems(loadItems());
-    setActivity(loadActivity());
+    const loadedItems = loadItems();
+    const loadedActivity = loadActivity();
+    setItems(loadedItems);
+    setActivity(loadedActivity);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(ACTIVITY_KEY, JSON.stringify(loadedActivity));
+    }
     setIsLoading(false);
   }, []);
 
@@ -91,11 +116,14 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
     (entry: Omit<ActivityEntry, "id" | "timestamp">) => {
       const newEntry: ActivityEntry = {
         ...entry,
-        id: `a-${Date.now()}`,
+        id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         timestamp: formatRelativeTime(new Date()),
       };
       setActivity((prev) => {
-        const next = [newEntry, ...prev].slice(0, 20);
+        const next = normalizeActivity([
+          newEntry,
+          ...prev.filter((item) => item.id !== newEntry.id),
+        ]).slice(0, 20);
         localStorage.setItem(ACTIVITY_KEY, JSON.stringify(next));
         return next;
       });
@@ -131,8 +159,86 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       ownerId: input.ownerId,
       lastUpdated: formatRelativeTime(new Date()),
       status: computeStatus(input.quantity, input.minStock),
+      imageUrl: input.imageUrl ?? existing?.imageUrl,
+      imagePending: existing?.imagePending,
     }),
     []
+  );
+
+  const attachProductImage = useCallback(
+    async (
+      itemId: string,
+      name: string,
+      category: string,
+      options?: { imageHint?: string; regenerate?: boolean }
+    ) => {
+      setItems((prev) => {
+        const next = prev.map((item) =>
+          item.id === itemId ? { ...item, imagePending: true } : item
+        );
+        localStorage.setItem(ITEMS_KEY, JSON.stringify(next));
+        return next;
+      });
+
+      try {
+        const res = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            category,
+            imageHint: options?.imageHint,
+            regenerate: options?.regenerate ?? Boolean(options?.imageHint),
+          }),
+        });
+        const data = (await res.json()) as { imageUrl?: string; error?: string };
+        if (!res.ok || !data.imageUrl) {
+          throw new Error(data.error ?? "Failed to generate image.");
+        }
+
+        setItems((prev) => {
+          const next = prev.map((item) =>
+            item.id === itemId
+              ? { ...item, imageUrl: data.imageUrl, imagePending: false }
+              : item
+          );
+          localStorage.setItem(ITEMS_KEY, JSON.stringify(next));
+          return next;
+        });
+      } catch {
+        setItems((prev) => {
+          const next = prev.map((item) =>
+            item.id === itemId ? { ...item, imagePending: false } : item
+          );
+          localStorage.setItem(ITEMS_KEY, JSON.stringify(next));
+          return next;
+        });
+      }
+    },
+    []
+  );
+
+  const regenerateProductImage = useCallback(
+    async (itemId: string, options?: { imageHint?: string }) => {
+      const item = items.find((entry) => entry.id === itemId);
+      if (!item) return { error: "Item not found." };
+      if (user?.role !== "admin" && item.ownerId !== user?.id) {
+        return { error: "You can only update images for your own items." };
+      }
+
+      await attachProductImage(item.id, item.name, item.category, {
+        imageHint: options?.imageHint,
+        regenerate: true,
+      });
+
+      pushActivity({
+        message: `${user?.name ?? "User"} regenerated image for ${item.name}`,
+        type: "update",
+      });
+
+      return {};
+    },
+    [items, user, attachProductImage, pushActivity]
   );
 
   const addItem = useCallback(
@@ -146,15 +252,23 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         return { error: "SKU already exists." };
       }
       const item = buildItem(payload);
-      persistItems([item, ...items]);
+      const hasPreviewImage = Boolean(input.imageUrl?.trim());
+      const nextItem = hasPreviewImage
+        ? { ...item, imageUrl: input.imageUrl!.trim(), imagePending: false }
+        : { ...item, imagePending: true };
+
+      persistItems([nextItem, ...items]);
+      if (!hasPreviewImage) {
+        void attachProductImage(item.id, item.name, item.category);
+      }
       pushActivity({
         message: `${user?.name ?? "User"} added ${item.quantity}× ${item.name}`,
         type: "add",
       });
       closeModal();
-      return {};
+      return { itemId: item.id };
     },
-    [items, buildItem, persistItems, pushActivity, user, closeModal]
+    [items, buildItem, persistItems, pushActivity, user, closeModal, attachProductImage]
   );
 
   const updateItem = useCallback(
@@ -251,6 +365,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       addItem,
       updateItem,
       deleteItem,
+      regenerateProductImage,
       getVisibleItems,
       getCategoryData,
       getStats,
@@ -268,6 +383,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       addItem,
       updateItem,
       deleteItem,
+      regenerateProductImage,
       getVisibleItems,
       getCategoryData,
       getStats,

@@ -207,7 +207,11 @@ export function NotificationsPanel() {
       list.push(...buildActivityNotifications(activity));
     }
 
-    return list;
+    const unique = new Map<string, AppNotification>();
+    for (const notification of list) {
+      unique.set(notification.id, notification);
+    }
+    return [...unique.values()];
   }, [
     settings.notifications.lowStockAlerts,
     settings.notifications.pushNotifications,

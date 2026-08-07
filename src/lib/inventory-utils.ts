@@ -69,4 +69,5 @@ export type ItemFormInput = {
   unit: string;
   location: string;
   ownerId: string;
+  imageUrl?: string;
 };

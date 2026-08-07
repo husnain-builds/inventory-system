@@ -3,6 +3,7 @@
 import type { InventoryItem, StockStatus } from "@/lib/mock-data";
 import { getUserById } from "@/lib/mock-data";
 import { useInventory } from "@/context/inventory-provider";
+import { ProductImageThumb } from "@/components/inventory/product-image-thumb";
 import { AlertTriangle, MapPin, Package, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -88,9 +89,12 @@ function InventoryCard({
     <div className="glass-card rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-primary/20 hover:shadow-md">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-primary-light">
-            <Package className="h-4 w-4 text-accent-primary" />
-          </div>
+          <ProductImageThumb
+            name={item.name}
+            imageUrl={item.imageUrl}
+            pending={item.imagePending}
+            size="md"
+          />
           <div>
             <p className="font-semibold text-text-primary">{item.name}</p>
             <p className="font-mono text-xs text-text-muted">{item.sku}</p>
@@ -201,9 +205,11 @@ export function InventoryTable({ items, showOwner = false }: InventoryTableProps
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-primary-light">
-                          <Package className="h-4 w-4 text-accent-primary" />
-                        </div>
+                        <ProductImageThumb
+                          name={item.name}
+                          imageUrl={item.imageUrl}
+                          pending={item.imagePending}
+                        />
                         <span className="font-semibold text-text-primary">
                           {item.name}
                         </span>
