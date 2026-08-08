@@ -37,14 +37,14 @@ export function StatCard({
   const styles = variantStyles[variant];
 
   return (
-    <div className="group glass-card relative overflow-hidden rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-5">
+    <div className="group glass-card relative overflow-hidden rounded-xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-4">
       <div
         className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${styles.accent} opacity-0 transition-opacity duration-200 group-hover:opacity-100`}
       />
       <div className="relative">
         <div className="mb-3 flex items-center justify-between">
           <div
-            className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 sm:h-11 sm:w-11 ${styles.icon}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${styles.icon}`}
           >
             <Icon className="h-5 w-5" strokeWidth={2.25} />
           </div>

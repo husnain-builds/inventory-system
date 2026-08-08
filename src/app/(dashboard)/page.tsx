@@ -113,9 +113,14 @@ export default function DashboardPage() {
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
-          <InventoryTable items={items.slice(0, 6)} showOwner={admin} />
+          <InventoryTable
+            items={items}
+            showOwner={admin}
+            paginate={false}
+            limit={10}
+          />
 
-          <div className="mt-4 glass-card rounded-2xl p-4 sm:p-5">
+          <div className="mt-4 glass-card rounded-xl p-4 sm:p-5">
             <h3 className="mb-4 text-sm font-bold text-text-primary">
               Recent Activity
             </h3>
@@ -149,7 +154,7 @@ export default function DashboardPage() {
             suggestions={reorderSuggestions}
             admin={admin}
           />
-          <div className="glass-card glass-card-glow rounded-2xl p-4 transition-shadow hover:shadow-md sm:p-5">
+          <div className="glass-card glass-card-glow rounded-xl p-4 transition-shadow hover:shadow-md sm:p-5">
             <h3 className="mb-1 text-sm font-bold text-text-primary">
               By Category
             </h3>
@@ -163,7 +168,7 @@ export default function DashboardPage() {
                 layout="horizontal"
               />
             ) : (
-              <p className="py-8 text-center text-sm text-text-muted">
+              <p className="py-6 text-center text-sm text-text-muted">
                 No items yet
               </p>
             )}

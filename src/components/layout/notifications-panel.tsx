@@ -359,7 +359,7 @@ export function NotificationsPanel() {
               />
               <div
                 ref={panelRef}
-                className="fixed right-4 top-[4.25rem] z-[101] hidden h-[min(24rem,calc(100vh-6rem))] w-80 flex-col overflow-hidden rounded-2xl border border-border bg-surface-elevated shadow-lg lg:flex"
+                className="fixed right-4 top-[4rem] z-[101] hidden h-[min(24rem,calc(100vh-5.5rem))] w-80 flex-col overflow-hidden rounded-xl border border-border bg-surface-elevated shadow-lg lg:flex"
                 role="dialog"
                 aria-label="Notifications"
               >

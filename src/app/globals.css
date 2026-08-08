@@ -67,18 +67,18 @@ body {
 }
 
 .page-shell {
-  padding: 1rem;
+  padding: 0.875rem 1rem;
 }
 
 @media (min-width: 640px) {
   .page-shell {
-    padding: 1.25rem;
+    padding: 1rem 1.125rem;
   }
 }
 
 @media (min-width: 1024px) {
   .page-shell {
-    padding: 1.5rem;
+    padding: 1.125rem 1.25rem;
   }
 }
 
@@ -86,6 +86,14 @@ body {
   background: var(--surface-card);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: color-mix(in srgb, var(--accent-primary) 18%, var(--border));
 }
 
 .glass-card-glow {
@@ -134,11 +142,11 @@ body {
 }
 
 [data-density="compact"] .page-shell {
-  padding: 0.75rem;
+  padding: 0.625rem 0.75rem;
 }
 
 [data-density="compact"] .glass-card {
-  padding: 0.75rem;
+  padding: 0.625rem;
 }
 
 body.notifications-open [data-mobile-nav] {
@@ -148,6 +156,6 @@ body.notifications-open [data-mobile-nav] {
 
 @media (min-width: 640px) {
   [data-density="compact"] .page-shell {
-    padding: 1rem;
+    padding: 0.75rem 0.875rem;
   }
 }

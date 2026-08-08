@@ -141,12 +141,12 @@ export default function SettingsPage() {
         subtitle="Account, notifications, and app preferences."
       />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:gap-3">
         <div className="lg:col-span-4">
-          <div className="glass-card glass-card-glow overflow-hidden rounded-2xl">
-            <div className="bg-gradient-to-br from-accent-primary to-indigo-600 px-5 py-6 text-white">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-xl font-bold backdrop-blur-sm">
+          <div className="glass-card glass-card-glow overflow-hidden rounded-xl">
+            <div className="bg-gradient-to-br from-accent-primary to-indigo-600 px-4 py-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-lg font-bold backdrop-blur-sm">
                   {user?.avatar ?? "?"}
                 </div>
                 <div>
@@ -160,7 +160,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="divide-y divide-border">
-              <div className="flex items-center gap-3 px-5 py-3.5">
+              <div className="flex items-center gap-2.5 px-4 py-2.5">
                 <Mail className="h-4 w-4 text-text-muted" />
                 <div className="min-w-0">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
@@ -171,7 +171,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 px-5 py-3.5">
+              <div className="flex items-center gap-2.5 px-4 py-2.5">
                 <Building2 className="h-4 w-4 text-text-muted" />
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
@@ -182,7 +182,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 px-5 py-3.5">
+              <div className="flex items-center gap-2.5 px-4 py-2.5">
                 <Shield className="h-4 w-4 text-text-muted" />
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
@@ -196,8 +196,8 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="glass-card rounded-xl p-4 text-center transition-shadow hover:shadow-md">
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="glass-card rounded-xl p-3 text-center transition-shadow hover:shadow-md">
               <Package className="mx-auto mb-2 h-5 w-5 text-accent-primary" />
               <p className="text-xl font-bold text-text-primary">
                 {items.length}
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                 Items
               </p>
             </div>
-            <div className="glass-card rounded-xl p-4 text-center transition-shadow hover:shadow-md">
+            <div className="glass-card rounded-xl p-3 text-center transition-shadow hover:shadow-md">
               <Bell className="mx-auto mb-2 h-5 w-5 text-accent-warning" />
               <p className="text-xl font-bold text-text-primary">
                 {alerts.length}
@@ -218,9 +218,9 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-8 lg:gap-5">
-          <div className="glass-card glass-card-glow overflow-hidden rounded-2xl sm:col-span-2">
-            <div className="flex items-center gap-2 border-b border-border bg-surface px-5 py-3.5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-8">
+          <div className="glass-card glass-card-glow overflow-hidden rounded-xl sm:col-span-2">
+            <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-primary-light">
                 <Bell className="h-4 w-4 text-accent-primary" />
               </div>
@@ -237,7 +237,7 @@ export default function SettingsPage() {
               {notifItems.map((item) => (
                 <div
                   key={item.key}
-                  className="flex items-center justify-between px-5 py-3.5"
+                  className="flex items-center justify-between px-4 py-2.5"
                 >
                   <span className="text-sm font-medium text-text-secondary">
                     {item.label}
@@ -249,7 +249,7 @@ export default function SettingsPage() {
                 </div>
               ))}
             </div>
-            <div className="border-t border-border px-5 py-4">
+            <div className="border-t border-border px-4 py-3">
               <p className="mb-2 text-xs font-medium text-text-secondary">
                 Email Report Frequency
               </p>
@@ -262,14 +262,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="glass-card glass-card-glow overflow-hidden rounded-2xl">
-            <div className="flex items-center gap-2 border-b border-border bg-surface px-5 py-3.5">
+          <div className="glass-card glass-card-glow overflow-hidden rounded-xl">
+            <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-info-light">
                 <User className="h-4 w-4 text-accent-info" />
               </div>
               <h3 className="text-sm font-bold text-text-primary">Profile</h3>
             </div>
-            <div className="space-y-3 p-5">
+            <div className="space-y-3 p-3.5">
               <div>
                 <label className="mb-1 block text-xs font-medium text-text-secondary">
                   Display Name
@@ -318,8 +318,8 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="glass-card glass-card-glow overflow-hidden rounded-2xl">
-            <div className="flex items-center gap-2 border-b border-border bg-surface px-5 py-3.5">
+          <div className="glass-card glass-card-glow overflow-hidden rounded-xl">
+            <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-success-light">
                 <Palette className="h-4 w-4 text-accent-success" />
               </div>
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                 Appearance
               </h3>
             </div>
-            <div className="space-y-4 p-5">
+            <div className="space-y-3 p-3.5">
               <div>
                 <p className="mb-2 text-xs font-medium text-text-secondary">
                   Theme
@@ -364,8 +364,8 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="glass-card flex flex-col justify-between overflow-hidden rounded-2xl border-accent-danger/20 sm:col-span-2">
-            <div className="flex items-center gap-3 px-5 py-4">
+          <div className="glass-card flex flex-col justify-between overflow-hidden rounded-xl border-accent-danger/20 sm:col-span-2">
+            <div className="flex items-center gap-3 px-4 py-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-danger-light">
                 <LogOut className="h-5 w-5 text-accent-danger" />
               </div>

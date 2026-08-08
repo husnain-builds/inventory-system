@@ -17,13 +17,13 @@ export function PageHeader({
   const { openCreateModal } = useInventory();
 
   return (
-    <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-0.5 text-sm text-text-secondary">{subtitle}</p>
+          <p className="mt-1 text-sm text-text-secondary">{subtitle}</p>
         )}
       </div>
       {showAddItem && (
