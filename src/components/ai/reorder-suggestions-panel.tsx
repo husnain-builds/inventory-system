@@ -27,7 +27,7 @@ export function ReorderSuggestionsPanel({
 }: ReorderSuggestionsPanelProps) {
   if (suggestions.length === 0) {
     return (
-      <div className="glass-card rounded-2xl p-4 sm:p-5">
+      <div className="glass-card rounded-xl p-4 sm:p-5">
         <div className="mb-2 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-accent-primary" />
           <h3 className="text-sm font-bold text-text-primary">
@@ -42,7 +42,7 @@ export function ReorderSuggestionsPanel({
   }
 
   return (
-    <div className="glass-card glass-card-glow rounded-2xl p-4 sm:p-5">
+    <div className="glass-card glass-card-glow rounded-xl p-4 sm:p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <div className="mb-1 flex items-center gap-2">

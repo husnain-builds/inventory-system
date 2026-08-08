@@ -19,21 +19,21 @@ export function TopBar() {
   const workspaceTitle = getWorkspaceTitle(displayName, admin);
 
   return (
-    <header className="z-30 flex h-16 shrink-0 items-center justify-between border-b border-border bg-surface-elevated/95 px-4 backdrop-blur-md sm:px-6">
+    <header className="z-30 flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface-elevated/95 px-4 backdrop-blur-md sm:h-[3.75rem] sm:px-6">
       <div className="lg:hidden">
         <Logo compact />
       </div>
 
       <div className="hidden min-w-0 lg:block">
-        <p className="truncate text-sm font-semibold text-text-primary">
+        <p className="truncate text-base font-semibold text-text-primary">
           {workspaceTitle}
         </p>
-        <p className="text-[10px] text-text-muted">
+        <p className="text-xs text-text-muted">
           {admin ? "Administrator" : "Warehouse workspace"}
         </p>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+      <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
         <AIChatPanel />
         <NotificationsPanel />
 

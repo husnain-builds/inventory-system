@@ -43,11 +43,11 @@ export default function UsersPage() {
           return (
             <div
               key={u.id}
-              className="glass-card glass-card-glow overflow-hidden rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+              className="glass-card glass-card-glow overflow-hidden rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
             >
-              <div className="border-b border-border bg-surface p-5">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-primary text-base font-bold text-white shadow-sm">
+              <div className="border-b border-border bg-surface p-3.5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-primary text-sm font-bold text-white shadow-sm">
                     {u.avatar}
                   </div>
                   <div className="min-w-0">
@@ -67,25 +67,25 @@ export default function UsersPage() {
               </div>
 
               <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
-                <div className="px-4 py-4 text-center">
-                  <p className="text-xl font-bold text-text-primary">
+                <div className="px-3 py-3 text-center">
+                  <p className="text-lg font-bold text-text-primary">
                     {userItems.length}
                   </p>
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
                     Items
                   </p>
                 </div>
-                <div className="px-4 py-4 text-center">
-                  <p className="text-xl font-bold text-text-primary">
+                <div className="px-3 py-3 text-center">
+                  <p className="text-lg font-bold text-text-primary">
                     {totalQty}
                   </p>
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
                     Units
                   </p>
                 </div>
-                <div className="px-4 py-4 text-center">
+                <div className="px-3 py-3 text-center">
                   <p
-                    className={`text-xl font-bold ${lowStock > 0 ? "text-accent-warning" : "text-accent-success"}`}
+                    className={`text-lg font-bold ${lowStock > 0 ? "text-accent-warning" : "text-accent-success"}`}
                   >
                     {lowStock}
                   </p>
@@ -95,8 +95,8 @@ export default function UsersPage() {
                 </div>
               </div>
 
-              <div className="p-5">
-                <p className="section-label mb-3">Inventory</p>
+              <div className="p-3.5">
+                <p className="section-label mb-2">Inventory</p>
                 {userItems.length === 0 ? (
                   <p className="text-sm text-text-muted">No items assigned</p>
                 ) : (

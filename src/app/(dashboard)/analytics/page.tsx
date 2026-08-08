@@ -68,15 +68,15 @@ export default function AnalyticsPage() {
         {statusCards.map((card) => (
           <div
             key={card.label}
-            className={`glass-card flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${card.border}`}
+            className={`glass-card flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${card.border}`}
           >
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-xl ${card.bg}`}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg ${card.bg}`}
             >
-              <card.icon className={`h-6 w-6 ${card.color}`} />
+              <card.icon className={`h-5 w-5 ${card.color}`} />
             </div>
             <div>
-              <p className={`text-3xl font-bold ${card.color}`}>{card.value}</p>
+              <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
               <p className="text-sm font-medium text-text-secondary">
                 {card.label}
               </p>
@@ -86,27 +86,27 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="glass-card glass-card-glow rounded-2xl p-5 transition-shadow hover:shadow-lg">
+        <div className="glass-card glass-card-glow rounded-xl p-4 transition-shadow hover:shadow-lg sm:p-5">
           <div className="mb-1 flex items-center justify-between">
             <h3 className="text-sm font-bold text-text-primary">
               Stock Volume Trend
             </h3>
-            <span className="rounded-full bg-accent-primary-light px-2.5 py-0.5 text-[10px] font-bold text-accent-primary">
+            <span className="rounded-full bg-accent-primary-light px-2 py-0.5 text-[10px] font-bold text-accent-primary">
               6 months
             </span>
           </div>
-          <p className="mb-4 text-xs text-text-muted">
+          <p className="mb-3 text-xs text-text-muted">
             Hover bars to see monthly totals
           </p>
-          <StockTrendChart data={trendData} height={240} />
+          <StockTrendChart data={trendData} height={220} />
         </div>
 
-        <div className="glass-card glass-card-glow rounded-2xl p-5 transition-shadow hover:shadow-lg">
+        <div className="glass-card glass-card-glow rounded-xl p-4 transition-shadow hover:shadow-lg sm:p-5">
           <div className="mb-1 flex items-center justify-between">
             <h3 className="text-sm font-bold text-text-primary">
               Items by Category
             </h3>
-            <span className="rounded-full bg-accent-success-light px-2.5 py-0.5 text-[10px] font-bold text-accent-success">
+            <span className="rounded-full bg-accent-success-light px-2 py-0.5 text-[10px] font-bold text-accent-success">
               {categoryData.length} categories
             </span>
           </div>
@@ -116,7 +116,7 @@ export default function AnalyticsPage() {
           {categoryData.length > 0 ? (
             <CategoryBarChart data={categoryData} layout="horizontal" />
           ) : (
-            <p className="py-12 text-center text-sm text-text-muted">
+            <p className="py-8 text-center text-sm text-text-muted">
               Add items to see category breakdown
             </p>
           )}
